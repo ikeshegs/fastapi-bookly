@@ -16,7 +16,11 @@ class BookService:
     
 
     async def get_book(self, book_uid: str, session: AsyncSession):
-        pass
+        statement = select(Book).where(Book.uid == book_uid)
+
+        result = await session.exec(statement)
+
+        return result.first()
     
 
     async def create_book(self, book_data: BookCreateModel, session: AsyncSession):
