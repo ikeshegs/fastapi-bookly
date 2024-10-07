@@ -1,4 +1,6 @@
 from passlib.context import CryptContext
+from datetime import timedelta, datetime
+import jwt
 
 passwd_context = CryptContext(
     schemes = ["bcrypt"]
@@ -13,3 +15,7 @@ def generate_password_hash(password: str) -> str:
 
 def verify_password(password: str, hash: str) -> bool:
     return passwd_context.verify(password, hash)
+
+
+def create_access_token(user_data: dict, expiry: timedelta):
+    pass
