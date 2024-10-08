@@ -18,7 +18,6 @@ async def get_all_books(
     session: AsyncSession = Depends(get_session), 
     user_details = Depends(access_token_bearer)
 ):
-    print(f"user details {user_details}")
     books = await book_service.get_all_books(session)
     return books
 
