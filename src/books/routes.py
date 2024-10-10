@@ -77,3 +77,4 @@ async def delete_book(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
     else:
         return None
+    
