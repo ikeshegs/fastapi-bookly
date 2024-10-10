@@ -23,11 +23,11 @@ class AccessTokenBearer(HTTPBearer):
                 detail = "Invalid or expired token"
             )
         
-        # if token_data["refresh"]:
-        #     raise HTTPException(
-        #         status_code = status.HTTP_403_FORBIDDEN,
-        #         detail = "Please provide an access token"
-        #     )
+        if token_data["refresh"]:
+            raise HTTPException(
+                status_code = status.HTTP_403_FORBIDDEN,
+                detail = "Please provide an access token"
+            )
 
         return token_data
     
