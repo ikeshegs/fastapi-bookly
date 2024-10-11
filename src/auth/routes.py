@@ -8,11 +8,13 @@ from .schemas import UserCreateModel, UserModel, UserLoginModel
 from .service import UserService
 from src.db.main import get_session
 from .utils import create_access_token, verify_password
-from .dependencies import RefreshTokenBearer, AccessTokenBearer, get_current_user
+from .dependencies import RefreshTokenBearer, AccessTokenBearer, get_current_user, RoleChecker
 from src.db.redis import add_jti_to_blocklist
+
 
 auth_router = APIRouter()
 user_service = UserService()
+role_checker = RoleChecker(["admin", "user"])
 
 REFRESH_TOKEN_EXPIRY = 2
 
@@ -58,14 +60,16 @@ async def login_user(
             access_token = create_access_token(
                 user_data = {
                     "email": user.email,
-                    "user_uid": str(user.uid)
+                    "user_uid": str(user.uid),
+                    "role": user.role
                 }
             )
 
             refresh_token = create_access_token(
                 user_data = {
                     "email": user.email,
-                    "user_uid": str(user.uid)
+                    "user_uid": str(user.uid),
+                    # "role": user.role
                 },
                 refresh = True,
                 expiry = timedelta(days = REFRESH_TOKEN_EXPIRY)
@@ -109,7 +113,9 @@ async def get_new_access_token(token_details: dict = Depends(RefreshTokenBearer(
 
 
 @auth_router.get("/me")
-async def get_current_user(user = Depends(get_current_user)):
+async def get_current_user(
+    user = Depends(get_current_user), 
+    _: bool  = Depends(role_checker)): # Since the role_checker function is not returning anything I used the "_"
     
     return user
 

@@ -2,11 +2,13 @@ from fastapi import Request, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.exceptions import HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
+from typing import List, Any
 
 from .utils import decode_token
 from src.db.redis import token_in_blocklist
 from src.db.main import get_session
 from .service import UserService
+from .models import User
 
 
 user_service = UserService()
@@ -84,3 +86,20 @@ async def get_current_user(
     user = await user_service.get_user_by_email(user_email, session)
 
     return user
+
+
+class RoleChecker:
+    def __init__(self, allowed_roles: List[str]) -> None:
+        
+        self.allowed_roles = allowed_roles
+
+    
+    def __call__(self, current_user: User = Depends(get_current_user)) -> Any:
+        
+        if current_user.role in self.allowed_roles:
+            return True
+        
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Operation not allowed"
+        )

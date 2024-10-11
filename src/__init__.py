@@ -18,7 +18,7 @@ app = FastAPI(
     title = "Bookly",
     description = "A Rest API for a book review web service",
     version = version,
-    lifespan = life_span
+    # lifespan = life_span # Removed since I'm using Alembic
 )
 
 app.include_router(book_router, prefix=f"/api/{version}/book", tags=["Book"])
