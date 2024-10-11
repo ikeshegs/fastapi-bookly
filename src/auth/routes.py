@@ -4,7 +4,7 @@ from fastapi.exceptions import HTTPException
 from datetime import timedelta, datetime
 from fastapi.responses import JSONResponse
 
-from .schemas import UserCreateModel, UserModel, UserLoginModel
+from .schemas import UserCreateModel, UserModel, UserLoginModel, UserBooksModel
 from .service import UserService
 from src.db.main import get_session
 from .utils import create_access_token, verify_password
@@ -112,7 +112,7 @@ async def get_new_access_token(token_details: dict = Depends(RefreshTokenBearer(
     )
 
 
-@auth_router.get("/me", response_model=UserModel)
+@auth_router.get("/me", response_model=UserBooksModel)
 async def get_current_user(
     user = Depends(get_current_user), 
     _: bool  = Depends(role_checker)): # Since the role_checker function is not returning anything I used the "_"
