@@ -96,7 +96,9 @@ class ReviewService:
                 status_code=status.HTTP_403_FORBIDDEN,
             )
 
-        session.add(review)
+        await session.delete(review)
 
         await session.commit()
+
+        return {}
         
