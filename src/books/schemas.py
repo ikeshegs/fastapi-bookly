@@ -4,6 +4,7 @@ from typing import List
 import uuid
 
 from src.reviews.schemas import ReviewModel
+from src.tags.schemas import TagModel
 
 
 class Book(BaseModel):
@@ -20,6 +21,7 @@ class Book(BaseModel):
 
 class BookDetailModel(Book):
     reviews: List[ReviewModel]
+    tags: list[TagModel]
 
 
 class BookCreateModel(BaseModel):

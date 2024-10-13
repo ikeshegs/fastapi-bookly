@@ -58,6 +58,12 @@ class BookNotFound(BooklyException):
     pass
 
 
+class ReviewNotFound(BooklyException):
+    """Review Not found"""
+
+    pass
+
+
 class TagNotFound(BooklyException):
     """Tag Not found"""
 
@@ -78,7 +84,7 @@ class UserNotFound(BooklyException):
 
 class AccountNotVerified(Exception):
     """Account not yet verified"""
-    
+
     pass
 
 
@@ -209,12 +215,12 @@ def register_all_errors(app: FastAPI):
     )
 
     app.add_exception_handler(
-        BookNotFound,
+        ReviewNotFound,
         create_exception_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             initial_detail={
-                "message": "Book Not Found",
-                "error_code": "book_not_found",
+                "message": "Review Not Found",
+                "error_code": "review_not_found",
             },
         ),
     )

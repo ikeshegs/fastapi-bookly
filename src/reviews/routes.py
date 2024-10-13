@@ -7,6 +7,7 @@ from src.db.models import User
 from .schemas import ReviewCreateModel
 from src.db.main import get_session
 from src.auth.dependencies import get_current_user, RoleChecker
+from src.errors import ReviewNotFound
 
 
 review_router = APIRouter()
@@ -27,10 +28,7 @@ async def get_review(review_uid: str, session: AsyncSession = Depends(get_sessio
     review = await review_service.get_review(review_uid, session)
 
     if not review:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Review not found"
-        )
+        raise ReviewNotFound()
     
     return review
 

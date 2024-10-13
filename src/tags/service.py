@@ -46,9 +46,12 @@ class TagService:
                 tag = Tag(name=tag_item.name)
 
             book.tags.append(tag)
+
         session.add(book)
+
         await session.commit()
         await session.refresh(book)
+
         return book
 
     async def get_tag_by_uid(self, tag_uid: str, session: AsyncSession):
@@ -87,7 +90,7 @@ class TagService:
         tag = await self.get_tag_by_uid(tag_uid, session)
 
         if not tag:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            raise TagNotFound()
 
         update_data_dict = tag_update_data.model_dump()
 
