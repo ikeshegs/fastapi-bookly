@@ -8,8 +8,7 @@ from .schemas import (
     UserCreateModel, 
     UserModel, 
     UserLoginModel, 
-    UserBooksModel, 
-    UserModel,
+    UserBooksModel,
     EmailModel,
     PasswordResetRequestModel,
     PasswordResetConfirmModel
@@ -103,6 +102,35 @@ async def create_user_account(
         "message": "Account created! Check your email to verify your account",
         "user": new_user
     }
+
+
+@auth_router.get("/verify/{token}")
+async def verify_user_account(token: str, session: AsyncSession = Depends(get_session)):
+    token_data = decode_url_safe_token(token)
+
+    user_email = token_data.get("email")
+
+    if user_email:
+        user = await user_service.get_user_by_email(user_email, session)
+
+        if not user:
+            raise UserNotFound()
+        
+        await user_service.update_user(user, {"is_verified": True}, session)
+
+        return JSONResponse(
+            content={
+                "message": "Account verified successfully"
+            },
+            status_code=status.HTTP_200_OK
+        )
+    
+    return JSONResponse(
+        content={
+            "message": "Your Account has not been verified"
+        },
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+    )
 
 
 @auth_router.post("/login")
