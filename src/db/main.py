@@ -5,10 +5,15 @@ from sqlalchemy.orm import sessionmaker
 
 from src.config import Config
 
+# async_engine = AsyncEngine(
+#     create_engine(
+#         url = Config.DATABASE_URL,
+#         echo = True # This prints output from the database
+#     )
+# )
 async_engine = AsyncEngine(
     create_engine(
-        url = Config.DATABASE_URL,
-        echo = True
+        url = Config.DATABASE_URL
     )
 )
 
