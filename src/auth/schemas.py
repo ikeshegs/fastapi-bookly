@@ -50,7 +50,7 @@ class UserLoginModel(BaseModel):
 
 
 class EmailModel(BaseModel):
-    addresses : List[str]
+    email_addresses: List[str]
 
 
 class PasswordResetRequestModel(BaseModel):

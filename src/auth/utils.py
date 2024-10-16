@@ -59,8 +59,9 @@ def decode_token(token: str) -> dict:
     
 
 serializer = URLSafeTimedSerializer(
-    secret_key=Config.JWT_SECRET, salt="email-configuration"
+    secret_key=Config.JWT_SECRET, salt="email-verification"
 )
+
 
 def create_url_safe_token(data: dict):
 
@@ -68,7 +69,8 @@ def create_url_safe_token(data: dict):
 
     return token
 
-def decode_url_safe_token(token:str):
+
+def decode_url_safe_token(token: str):
     try:
         token_data = serializer.loads(token)
 

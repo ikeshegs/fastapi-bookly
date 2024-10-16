@@ -31,6 +31,7 @@ from .dependencies import (
 )
 from src.db.redis import add_jti_to_blocklist
 from src.config import Config
+from src.mail import mail, create_message
 
 from src.errors import UserAlreadyExists, UserNotFound, InvalidCredentials, InvalidToken
 
@@ -42,16 +43,23 @@ role_checker = RoleChecker(["admin", "user"])
 REFRESH_TOKEN_EXPIRY = 2
 
 
-# @auth_router.post("/send_mail")
-# async def send_mail(emails: EmailModel):
-#     emails = emails.addresses
+@auth_router.post("/send_mail")
+async def send_mail(emails: EmailModel):
+    emails = emails.email_addresses
 
-#     html = "<h1>Welcome to the app</h1>"
-#     subject = "Welcome to our app"
+    html = "<h1>Welcome to the bookly app</h1>"
+    # subject = "Welcome to our app"
 
-#     send_email.delay(emails, subject, html)
+    # send_email.delay(emails, subject, html)
+    message = create_message(
+        recipients = emails,
+        subject = "Welcome",
+        body = html
+    )
 
-#     return {"message": "Email sent successfully"}
+    await mail.send_message(message)
+
+    return {"message": "Email sent successfully"}
 
 
 @auth_router.post(
@@ -78,7 +86,27 @@ async def create_user_account(
     
     new_user = await user_service.create_user(user_data, session)
 
-    return new_user
+    token = create_url_safe_token({"email": email})
+
+    link = f"http://{Config.DOMAIN}/api/v1/auth/verify/{token}"
+
+    html_message = f"""
+    <h1>Verify Your Email Address</h1>
+    <p>Please click on the <a href="{link}">link</a> to verify your email address.</p>
+    """
+
+    message = create_message(
+        recipients = [email],
+        subject = "VERIFY YOUR EMAIL ADDRESS",
+        body = html_message
+    )
+
+    await mail.send_message(message)
+
+    return {
+        "message": "Account created! Check your email to verify your account",
+        "user": new_user
+    }
 
 
 @auth_router.post("/login")
