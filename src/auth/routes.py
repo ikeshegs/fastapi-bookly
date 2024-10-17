@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, BackgroundTasks
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi.exceptions import HTTPException
 from datetime import timedelta, datetime
@@ -43,7 +43,7 @@ REFRESH_TOKEN_EXPIRY = 2
 
 
 @auth_router.post("/send_mail")
-async def send_mail(emails: EmailModel):
+async def send_mail(emails: EmailModel, bg_tasks: BackgroundTasks):
     emails = emails.email_addresses
 
     html = "<h1>Welcome to the bookly app</h1>"
@@ -56,14 +56,16 @@ async def send_mail(emails: EmailModel):
         body = html
     )
 
-    await mail.send_message(message)
+    # await mail.send_message(message)
+    bg_tasks.add_task(mail.send_message, message)
 
     return {"message": "Email sent successfully"}
 
 
 @auth_router.post("/signup", status_code = status.HTTP_201_CREATED)
 async def create_user_account(
-    user_data: UserCreateModel, 
+    user_data: UserCreateModel,
+    bg_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_session)
 ):
     """
@@ -97,6 +99,7 @@ async def create_user_account(
     )
 
     # await mail.send_message(message)
+    bg_tasks.add_task(mail.send_message, message)
 
     return {
         "message": "Account created! Check your email to verify your account",
@@ -220,7 +223,10 @@ async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
 
 
 @auth_router.post("/password-reset-request")
-async def password_reset_request(email_data: PasswordResetRequestModel):
+async def password_reset_request(
+    email_data: PasswordResetRequestModel, 
+    bg_tasks: BackgroundTasks
+):
     email = email_data.email
 
     token = create_url_safe_token({"email": email})
@@ -237,7 +243,8 @@ async def password_reset_request(email_data: PasswordResetRequestModel):
     message = create_message(recipients=[email], subject=subject, body=html_message)
     print(f"RESET LINK: {html_message}")
 
-    await mail.send_message(message)
+    # await mail.send_message(message)
+    bg_tasks.add_task(mail.send_message, message)
 
     return JSONResponse(
         content={
