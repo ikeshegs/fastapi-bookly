@@ -232,7 +232,7 @@ def register_all_errors(app: FastAPI):
             initial_detail={
                 "message": "Account Not verified",
                 "error_code": "account_not_verified",
-                "resolution":"Please check your email for verification details"
+                "resolution": "Please check your email for verification details"
             },
         ),
     )
