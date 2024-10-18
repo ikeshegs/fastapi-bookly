@@ -6,7 +6,6 @@ from fastapi.responses import JSONResponse
 
 from .schemas import (
     UserCreateModel, 
-    UserModel, 
     UserLoginModel, 
     UserBooksModel,
     EmailModel,
@@ -31,6 +30,7 @@ from .dependencies import (
 from src.db.redis import add_jti_to_blocklist
 from src.config import Config
 from src.mail import mail, create_message
+from src.celery_tasks import send_email
 
 from src.errors import UserAlreadyExists, UserNotFound, InvalidCredentials, InvalidToken
 
@@ -47,17 +47,19 @@ async def send_mail(emails: EmailModel, bg_tasks: BackgroundTasks):
     emails = emails.email_addresses
 
     html = "<h1>Welcome to the bookly app</h1>"
-    # subject = "Welcome to our app"
+    subject = "Welcome to our app"
 
-    # send_email.delay(emails, subject, html)
-    message = create_message(
-        recipients = emails,
-        subject = "Welcome",
-        body = html
-    )
+    # message = create_message(
+    #     recipients = emails,
+    #     subject = "Welcome",
+    #     body = html
+    # )
 
     # await mail.send_message(message)
-    bg_tasks.add_task(mail.send_message, message)
+    # bg_tasks.add_task(mail.send_message, message)
+
+    # Using Celery to send the emails
+    send_email.delay(emails, subject, html)
 
     return {"message": "Email sent successfully"}
 
@@ -92,14 +94,20 @@ async def create_user_account(
     <p>Please click on the <a href="{link}">link</a> to verify your email address.</p>
     """
 
-    message = create_message(
-        recipients = [email],
-        subject = "VERIFY YOUR EMAIL ADDRESS",
-        body = html_message
-    )
+    # message = create_message(
+    #     recipients = [email],
+    #     subject = "VERIFY YOUR EMAIL ADDRESS",
+    #     body = html_message
+    # )
 
-    # await mail.send_message(message)
-    bg_tasks.add_task(mail.send_message, message)
+    # # await mail.send_message(message)
+    # bg_tasks.add_task(mail.send_message, message)
+
+    # Celery tasks
+    emails = [email]
+    subject = "VERIFY YOUR EMAIL ADDRESS"
+
+    send_email.delay(emails, subject, html_message)
 
     return {
         "message": "Account created! Check your email to verify your account",
@@ -239,12 +247,12 @@ async def password_reset_request(
     """
     subject = "Reset Your Password"
 
-    # send_email.delay([email], subject, html_message)
-    message = create_message(recipients=[email], subject=subject, body=html_message)
-    print(f"RESET LINK: {html_message}")
+    # message = create_message(recipients=[email], subject=subject, body=html_message)
 
     # await mail.send_message(message)
-    bg_tasks.add_task(mail.send_message, message)
+    # bg_tasks.add_task(mail.send_message, message)
+
+    send_email.delay([email], subject, html_message)
 
     return JSONResponse(
         content={
