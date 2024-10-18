@@ -10,8 +10,9 @@ c_app = Celery()
 c_app.config_from_object("src.config")
 
 
-@c_app.tasks()
+@c_app.task()
 def send_email(recipients: List[str], subject: str, body: str):
     message = create_message(recipients=recipients, subject=subject, body=body)
 
-    mail.send_message, message
+    async_to_sync(mail.send_message)(message)
+    print("Email Sent")

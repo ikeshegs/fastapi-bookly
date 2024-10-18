@@ -22,9 +22,15 @@ async def life_span(app: FastAPI):
 version = "v1"
 
 app = FastAPI(
-    title = "Bookly",
-    description = "A Rest API for a book review web service",
-    version = version,
+    title="Bookly",
+    description="A Rest API for a book review web service",
+    version=version,
+    docs_url=f"/api/{version}/docs",
+    redoc_url=f"/api/{version}/redoc",
+    contact={
+        "name": "Ikechukwu Okoro",
+        "email": "ikeshegs@gmail.com"
+    }
     # lifespan = life_span # Removed since I'm using Alembic
 )
 
