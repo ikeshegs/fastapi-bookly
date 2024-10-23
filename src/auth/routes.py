@@ -31,7 +31,6 @@ from src.db.redis import add_jti_to_blocklist
 from src.config import Config
 from src.mail import mail, create_message
 from src.celery_tasks import send_email
-
 from src.errors import UserAlreadyExists, UserNotFound, InvalidCredentials, InvalidToken
 
 
